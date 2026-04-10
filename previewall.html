@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>遙控無人機學科測驗整合練習工具</title>
+<style>
+  :root {
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --primary: #2563eb;
+    --primary-2: #1d4ed8;
+    --soft: #dbeafe;
+    --border: #dbe2ea;
+    --ok: #059669;
+    --warn: #d97706;
+    --danger: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .site-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+  .site-nav {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 12px 16px;
+  }
+  .site-nav-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #2980b9;
+    font-weight: 600;
+    font-size: 1.05rem;
+    transition: color 0.2s;
+  }
+  .site-nav-brand:hover {
+    color: #1f618d;
+  }
+  .site-nav-logo {
+    height: 40px;
+    max-height: 40px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+  }
+  .wrap {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 24px 16px 72px;
+  }
+  .hero {
+    background: linear-gradient(135deg, #eef4ff, #ffffff);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, .06);
+    margin-bottom: 18px;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font-size: 30px;
+  }
+  .sub {
+    margin: 0;
+    color: var(--muted);
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .chip {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--soft);
+    color: var(--primary-2);
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .05);
+    margin-bottom: 16px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .col-6 { grid-column: span 6; }
+  .col-4 { grid-column: span 4; }
+  .col-12 { grid-column: span 12; }
+  .exam-cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .exam-card {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    cursor: pointer;
+    background: #fff;
+    transition: .16s ease;
+  }
+  .exam-card:hover {
+    border-color: #93c5fd;
+    transform: translateY(-1px);
+  }
+  .exam-card.active {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+    background: #f8fbff;
+  }
+  .exam-card h3 {
+    margin: 0 0 6px;
+    font-size: 17px;
+  }
+  .exam-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .field select, .field input {
+    width: 100%;
+    padding: 12px 13px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    font-size: 15px;
+    background: #fff;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  button {
+    border: 0;
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .primary { background: var(--primary); color: #fff; }
+  .secondary { background: #eef2ff; color: #3730a3; }
+  .ghost { background: #f3f4f6; color: #111827; }
+  .danger { background: #fee2e2; color: #991b1b; }
+  .hidden { display: none !important; }
+
+  .status {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat .v {
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 4px;
+  }
+  .stat .k {
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .timer.normal .v { color: var(--primary); }
+  .timer.warn .v { color: var(--warn); }
+  .timer.danger .v { color: var(--danger); }
+
+  .results {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .results.show { display: block; }
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .result-box {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    text-align: center;
+  }
+  .result-box strong {
+    display: block;
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, .04);
+  }
+  .q-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .q-no {
+    color: var(--primary);
+    font-weight: 900;
+    font-size: 14px;
+  }
+  .tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .q-text {
+    font-size: 18px;
+    font-weight: 800;
+    margin-top: 4px;
+  }
+  .options {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .option {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: .14s ease;
+    background: #fff;
+  }
+  .option:hover {
+    border-color: #93c5fd;
+    background: #f8fbff;
+  }
+  .option input {
+    margin-top: 4px;
+    transform: scale(1.12);
+  }
+  .option.user-picked {
+    outline: 2px solid rgba(37, 99, 235, .15);
+  }
+  .option.correct {
+    border-color: #86efac;
+    background: #ecfdf5;
+  }
+  .option.wrong {
+    border-color: #fca5a5;
+    background: #fef2f2;
+  }
+  .explain {
+    margin-top: 12px;
+    border-top: 1px dashed var(--border);
+    padding-top: 10px;
+    font-size: 14px;
+  }
+  .ok { color: var(--ok); font-weight: 900; }
+  .bad { color: var(--danger); font-weight: 900; }
+  .note {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 980px) {
+    .exam-cards { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .status, .result-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .col-6, .col-4 { grid-column: span 12; }
+  }
+  @media (max-width: 620px) {
+    h1 { font-size: 24px; }
+    .exam-cards, .status, .result-grid { grid-template-columns: 1fr; }
+    .q-head { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="site-nav">
+    <a class="site-nav-brand" href="./index.html">
+      <img class="site-nav-logo" src="./assets/icon.png" alt="移動安全信賴中心" />
+      <span>移動安全信賴中心</span>
+    </a>
+  </nav>
+</header>
+<div class="wrap">
+  <section class="hero">
+    <h1>遙控無人機學科測驗整合練習工具</h1>
+    <p class="sub">單一 HTML 本地網頁版，可直接雙擊開啟。整合 4 種考試模式，支援固定代碼重現題組、計時、交卷計分與顯示正解。</p>
+    <div class="chips">
+      <span class="chip">普通操作證：20 題 / 30 分鐘</span>
+      <span class="chip">專業操作證：40 題 / 60 分鐘</span>
+      <span class="chip">屆期換證一般：40 題 / 60 分鐘</span>
+      <span class="chip">屆期換證簡易：40 題 / 60 分鐘</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="field">
+      <label>考試模式</label>
+      <div class="exam-cards" id="examCards"></div>
+    </div>
+
+    <div class="grid" style="margin-top:14px;">
+      <div class="col-6 field">
+        <label for="chapterSelect">章節範圍</label>
+        <select id="chapterSelect"></select>
+      </div>
+      <div class="col-6 field">
+        <label for="seedInput">固定代碼（留空則隨機）</label>
+        <input id="seedInput" type="text" placeholder="輸入固定代碼可重現同一份題組">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="startBtn">開始新測驗</button>
+      <button class="secondary hidden" id="submitBtn">交卷並計分</button>
+      <button class="ghost hidden" id="restartBtn">重新抽題</button>
+      <button class="danger hidden" id="showAnswerBtn">顯示正解</button>
+    </div>
+    <div class="note">同一個考試模式 + 同一個章節範圍 + 同一個固定代碼，會抽出相同題組與順序。</div>
+  </section>
+
+  <section class="status hidden" id="statusBar">
+    <div class="stat"><div class="v" id="examNameText">-</div><div class="k">目前考試</div></div>
+    <div class="stat"><div class="v" id="questionProgress">0 / 0</div><div class="k">已作答題數</div></div>
+    <div class="stat"><div class="v" id="answerRatePreview">0%</div><div class="k">目前作答率</div></div>
+    <div class="stat timer normal" id="timerCard"><div class="v" id="timerText">00:00</div><div class="k">剩餘時間</div></div>
+    <div class="stat"><div class="v" id="seedEcho">隨機</div><div class="k">本回題組代碼</div></div>
+  </section>
+
+  <section class="results" id="results">
+    <h2 style="margin-top:0;">測驗結果</h2>
+    <div class="result-grid">
+      <div class="result-box"><strong id="correctCount">0</strong>答對題數</div>
+      <div class="result-box"><strong id="wrongCount">0</strong>答錯題數</div>
+      <div class="result-box"><strong id="unansweredCount">0</strong>未作答題數</div>
+      <div class="result-box"><strong id="scoreText">0</strong>分數</div>
+      <div class="result-box"><strong id="answerRateText">0%</strong>答題率</div>
+    </div>
+    <div class="note" id="resultNote"></div>
+  </section>
+
+  <main id="quizArea"></main>
+</div>
+
+<script src="./question-bank.js"></script>
+<script>
+const QUESTION_BANK = window.QUESTION_BANK;
+const EXAM_CONFIG = {"regular": {"name": "普通操作證學科測驗", "questionCount": 20, "durationMinutes": 30, "passScore": 80, "hasChapterFilter": true, "chapters": ["第一章 民用航空法及相關法規", "第二章 基礎飛行原理", "第三章 氣象", "第四章 緊急處置與飛行決策"]}, "professional": {"name": "專業操作證學科測驗", "questionCount": 40, "durationMinutes": 60, "passScore": 80, "hasChapterFilter": true, "chapters": ["第一章 民用航空法及相關法規", "第二章 基礎飛行原理", "第三章 氣象", "第四章 緊急處置與飛行決策"]}, "renewal_general": {"name": "專業操作證屆期換證學科測驗（一般）", "questionCount": 40, "durationMinutes": 60, "passScore": 80, "hasChapterFilter": false, "chapters": []}, "renewal_easy": {"name": "專業操作證屆期換證學科測驗（簡易）", "questionCount": 40, "durationMinutes": 60, "passScore": 80, "hasChapterFilter": false, "chapters": []}};
+
+const state = {
+  examType: "professional",
+  currentExamType: "professional",
+  questions: [],
+  answers: {},
+  timerId: null,
+  remainingSeconds: 0,
+  submitted: false,
+  revealAnswers: false,
+  activeSeed: "",
+};
+
+const examCards = document.getElementById("examCards");
+const chapterSelect = document.getElementById("chapterSelect");
+const seedInput = document.getElementById("seedInput");
+const statusBar = document.getElementById("statusBar");
+const results = document.getElementById("results");
+const quizArea = document.getElementById("quizArea");
+
+function renderExamCards() {
+  examCards.innerHTML = "";
+  Object.entries(EXAM_CONFIG).forEach(([key, cfg]) => {
+    const card = document.createElement("div");
+    card.className = "exam-card" + (state.examType === key ? " active" : "");
+    card.innerHTML = `
+      <h3>${cfg.name}</h3>
+      <p>${cfg.questionCount} 題 ・ ${cfg.durationMinutes} 分鐘 ・ 合格 ${cfg.passScore} 分</p>
+    `;
+    card.addEventListener("click", () => {
+      state.examType = key;
+      renderExamCards();
+      renderChapterOptions();
+    });
+    examCards.appendChild(card);
+  });
+}
+
+function renderChapterOptions() {
+  const cfg = EXAM_CONFIG[state.examType];
+  chapterSelect.innerHTML = "";
+  if (!cfg.hasChapterFilter) {
+    const option = document.createElement("option");
+    option.value = "all";
+    option.textContent = "此考試題庫不分章節";
+    chapterSelect.appendChild(option);
+    chapterSelect.disabled = true;
+    return;
+  }
+  chapterSelect.disabled = false;
+  const allOption = document.createElement("option");
+  allOption.value = "all";
+  allOption.textContent = "全部章節混合";
+  chapterSelect.appendChild(allOption);
+  cfg.chapters.forEach(ch => {
+    const option = document.createElement("option");
+    option.value = ch;
+    option.textContent = ch;
+    chapterSelect.appendChild(option);
+  });
+}
+
+function makeSeededRandom(seedStr) {
+  let seed = 0;
+  const raw = seedStr || String(Date.now() + Math.random());
+  for (let i = 0; i < raw.length; i++) {
+    seed = (seed * 31 + raw.charCodeAt(i)) >>> 0;
+  }
+  return function () {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+}
+
+function shuffleArray(arr, randomFn) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(randomFn() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function formatTime(totalSeconds) {
+  const min = Math.floor(totalSeconds / 60);
+  const sec = totalSeconds % 60;
+  return `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+}
+
+function getQuestionPool() {
+  const cfg = EXAM_CONFIG[state.examType];
+  let pool = QUESTION_BANK.filter(q => q.examType === state.examType);
+  if (cfg.hasChapterFilter && chapterSelect.value !== "all") {
+    pool = pool.filter(q => q.chapter === chapterSelect.value);
+  }
+  return pool;
+}
+
+function stopTimer() {
+  if (state.timerId) {
+    clearInterval(state.timerId);
+    state.timerId = null;
+  }
+}
+
+function startTimer() {
+  stopTimer();
+  updateTopStats();
+  state.timerId = setInterval(() => {
+    state.remainingSeconds -= 1;
+    if (state.remainingSeconds <= 0) {
+      state.remainingSeconds = 0;
+      updateTopStats();
+      submitQuiz(true);
+      return;
+    }
+    updateTopStats();
+  }, 1000);
+}
+
+function updateTopStats() {
+  const cfg = EXAM_CONFIG[state.currentExamType];
+  const answered = Object.keys(state.answers).length;
+  const total = state.questions.length || cfg.questionCount;
+  const answerRate = total ? Math.round((answered / total) * 100) : 0;
+
+  document.getElementById("examNameText").textContent = cfg.name;
+  document.getElementById("questionProgress").textContent = `${answered} / ${total}`;
+  document.getElementById("answerRatePreview").textContent = `${answerRate}%`;
+  document.getElementById("timerText").textContent = formatTime(state.remainingSeconds || cfg.durationMinutes * 60);
+  document.getElementById("seedEcho").textContent = state.activeSeed || "隨機";
+
+  const timerCard = document.getElementById("timerCard");
+  timerCard.classList.remove("normal", "warn", "danger");
+  if ((state.remainingSeconds || cfg.durationMinutes * 60) <= 300) {
+    timerCard.classList.add("danger");
+  } else if ((state.remainingSeconds || cfg.durationMinutes * 60) <= 900) {
+    timerCard.classList.add("warn");
+  } else {
+    timerCard.classList.add("normal");
+  }
+}
+
+function startQuiz() {
+  state.currentExamType = state.examType;
+  const cfg = EXAM_CONFIG[state.currentExamType];
+  const seed = seedInput.value.trim();
+  const rng = makeSeededRandom(seed || undefined);
+  const pool = getQuestionPool();
+  state.questions = shuffleArray(pool, rng).slice(0, cfg.questionCount);
+  state.answers = {};
+  state.submitted = false;
+  state.revealAnswers = false;
+  state.remainingSeconds = cfg.durationMinutes * 60;
+  state.activeSeed = seed || "";
+
+  statusBar.classList.remove("hidden");
+  results.classList.remove("show");
+  document.getElementById("submitBtn").classList.remove("hidden");
+  document.getElementById("restartBtn").classList.remove("hidden");
+  document.getElementById("showAnswerBtn").classList.add("hidden");
+
+  renderQuiz();
+  startTimer();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function selectAnswer(qid, optionKey) {
+  if (state.submitted) return;
+  state.answers[qid] = optionKey;
+  updateTopStats();
+  renderQuiz();
+}
+
+function calcResults() {
+  let correct = 0;
+  let wrong = 0;
+  const total = state.questions.length;
+  const answered = Object.keys(state.answers).length;
+  state.questions.forEach(q => {
+    const picked = state.answers[q.id];
+    if (!picked) return;
+    if (picked === q.answer) correct += 1;
+    else wrong += 1;
+  });
+  const unanswered = total - answered;
+  const score = Math.round((correct / total) * 100);
+  const answerRate = Math.round((answered / total) * 100);
+  return { correct, wrong, unanswered, score, answerRate };
+}
+
+function submitQuiz(auto=false) {
+  if (!state.questions.length || state.submitted) return;
+  state.submitted = true;
+  state.revealAnswers = true;
+  stopTimer();
+
+  const cfg = EXAM_CONFIG[state.currentExamType];
+  const { correct, wrong, unanswered, score, answerRate } = calcResults();
+
+  document.getElementById("correctCount").textContent = correct;
+  document.getElementById("wrongCount").textContent = wrong;
+  document.getElementById("unansweredCount").textContent = unanswered;
+  document.getElementById("scoreText").textContent = score;
+  document.getElementById("answerRateText").textContent = `${answerRate}%`;
+  document.getElementById("resultNote").textContent =
+    (auto ? "時間已到，系統已自動交卷。" : "已完成計分。") +
+    ` 本測驗合格標準為 ${cfg.passScore} 分，` +
+    (score >= cfg.passScore ? "本次成績已達合格標準。" : "本次成績尚未達合格標準。");
+
+  results.classList.add("show");
+  document.getElementById("showAnswerBtn").classList.remove("hidden");
+  renderQuiz();
+  updateTopStats();
+}
+
+function revealAnswers() {
+  state.revealAnswers = true;
+  renderQuiz();
+}
+
+function renderQuiz() {
+  quizArea.innerHTML = "";
+  updateTopStats();
+
+  state.questions.forEach((q, index) => {
+    const card = document.createElement("section");
+    card.className = "question-card";
+
+    const head = document.createElement("div");
+    head.className = "q-head";
+    head.innerHTML = `
+      <div>
+        <div class="q-no">第 ${index + 1} 題</div>
+        <div class="q-text">${q.question}</div>
+      </div>
+      <div class="tag">${q.chapter}</div>
+    `;
+    card.appendChild(head);
+
+    const options = document.createElement("div");
+    options.className = "options";
+
+    ["A","B","C","D"].forEach(key => {
+      const picked = state.answers[q.id] === key;
+      const label = document.createElement("label");
+      label.className = "option";
+      if (picked) label.classList.add("user-picked");
+      if (state.revealAnswers) {
+        if (key === q.answer) label.classList.add("correct");
+        if (picked && key !== q.answer) label.classList.add("wrong");
+      }
+      label.innerHTML = `
+        <input type="radio" name="q-${q.id}" ${picked ? "checked" : ""} ${state.submitted ? "disabled" : ""}>
+        <div><strong>${key}.</strong> ${q.options[key]}</div>
+      `;
+      label.addEventListener("click", (e) => {
+        e.preventDefault();
+        selectAnswer(q.id, key);
+      });
+      options.appendChild(label);
+    });
+    card.appendChild(options);
+
+    if (state.revealAnswers) {
+      const user = state.answers[q.id];
+      const explain = document.createElement("div");
+      explain.className = "explain";
+      explain.innerHTML = `
+        <div class="${user === q.answer ? "ok" : "bad"}">${user === q.answer ? "答對" : "答題結果"}</div>
+        <div>你的答案：${user || "未作答"}</div>
+        <div>正確答案：<strong>${q.answer}</strong></div>
+      `;
+      card.appendChild(explain);
+    }
+
+    quizArea.appendChild(card);
+  });
+}
+
+document.getElementById("startBtn").addEventListener("click", startQuiz);
+document.getElementById("submitBtn").addEventListener("click", () => submitQuiz(false));
+document.getElementById("restartBtn").addEventListener("click", startQuiz);
+document.getElementById("showAnswerBtn").addEventListener("click", revealAnswers);
+
+renderExamCards();
+renderChapterOptions();
+updateTopStats();
+</script>
+</body>
+</html>
